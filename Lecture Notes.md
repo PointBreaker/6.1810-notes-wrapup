@@ -64,8 +64,8 @@
 ## Class structure
 
 - Online course information:
-  https://pdos.csail.mit.edu/6.1810/ ** schedule, assignments, labs
-  Piazza ** announcements, discussion, lab help
+  https://pdos.csail.mit.edu/6.1810/ --- schedule, assignments, labs
+  Piazza --- announcements, discussion, lab help
 
 - Lectures
 
@@ -136,7 +136,7 @@ main()
 ```
 
 - copy.c is written in C
-   
+  
    - Kernighan and Ritchie (K&R) book is good for learning C, you can find these example programs via the schedule on the web site
        `read()` and `write() `are system calls
       
@@ -145,7 +145,7 @@ main()
        - passed to kernel to tell it which "open file" to read/write must previously have been opened an FD connects to a` file/device/socket/&c`
    
        - a process can open many files, have many FDs
-      
+       
        - UNIX convention: fd `0` is "standard input", `1` is "standard output"    
       
    - second `read()` argument is a pointer to some memory into which to read
@@ -519,7 +519,281 @@ main()
 
 ### Summary
   - We've looked at UNIX's I/O, file system, and process abstractions.
-  - The interfaces are simple ** just integers and I/O buffers.
+  - The interfaces are simple --- just integers and I/O buffers.
   - The abstractions combine well, e.g. for I/O redirection.
 
 You'll use these system calls in the first lab, due next week.
+
+# 6.1810 2022 Lecture 2: programming xv6 in C
+
+## why C?
+ - good for low-level programming
+    - easy mapping between C and RISC-V instructions
+    - easy mapping between C types and hardware structures
+    - e.g.., set bit flags in hardware registers of a device
+ - minimal runtime
+    - easy to port to another hardware platform
+    - direct access to hardware
+ - explicit memory management
+    - no garbage collector
+    - kernel is in complete control of memory management
+ - efficient: compiled (no interpreter)
+    - compiler compiles C to assembly
+ - popular for building kernels, system software, etc.
+    - good support for C on almost any platform
+ - why not?
+    - easy to write incorrect code
+    - easy to write code that has security vulnerabilities
+- today's lecture: use of C in xv6
+    - memory layout
+    - pointers
+    - arrays
+    - strings
+    - lists
+    - bitwise operators
+      [not a general intro to C]
+
+- memory layout of a C program in xv6
+
+  ![Fig 3.4](https://picgo-1252947055.cos.ap-guangzhou.myqcloud.com/image-20230426023505163.png)  [draw figure, see fig 3.4 of text]
+
+  -  text: code, read-only data
+  - data: global C variables
+  - stack: function's local variables
+  - heap: dynamic memory allocation using sbrk, malloc/free
+
+- example: compile cat.c
+
+    Makefile defines how
+
+  - `gcc` compiles to `.o`
+  - `ld` links `.o `files into an executable
+       ` ulibc.o `is xv6 minimal C library
+  - executable has `a.out `format with sections for:
+        text (code), initialized data, symbol table, debug info, and more
+
+- explore `a.out` of `_cat`
+  
+   ` riscv64-linux-gnu-objdump -S user/_cat`
+      same as user/cat.asm
+  - 0x0: cat
+        what if we run two cat programs at the same time?
+        see pgtbl lecture
+  - 0x8e: _main
+        user.ld:
+          entry: _main
+  - what is _main?
+        defined in ulib.c, which calls `main()` and `exit(0)`
+  - where is data memory? (e.g., buf)
+        in data/bss segment
+        must be setup by kernel
+  - but we know address where buf should be
+       ` riscv64-linux-gnu-nm -n user/_cat`
+
+## C pointers
+
+- a pointer is a memory address
+  - every variable has a memory address (i.e., `p = &i`)
+  - so each variable can be accessed through its pointer (i.e., `*i`)
+  - a pointer can be variable (e.g., int *p)
+    - and thus has a memory address, etc.
+-  pointer arithmetic
+
+    ```c
+    char *c;
+    int *i;
+    ```
+
+​    what is the value of c+1 and i+1?
+
+- referencing elements of a struct
+
+    ```c
+    struct {
+        int a;
+        int b;
+    } *p;
+    p->a = 10
+    ```
+
+    ```c
+    #include "kernel/types.h"
+    #include "user/user.h"
+
+    int g = 3;
+        
+    int
+    main(int ac, char **av)
+    {
+    int l = 5;   // local variables don't have a default value
+    int *p, *q;
+    
+    // take address of variable
+    p = &g;
+    q = &l;
+    printf("p %p q %p\n", p, q);
+
+    // assign using pointer
+    *p = 11;
+    *q = 13;
+    printf("g %d l %d\n", g, l);
+
+    // struct
+    struct two {
+        int a;
+        int b;
+    } s;
+    s.a = 10;
+    struct two *ptr = &s;
+    printf("%d %d\n", s.a, ptr->a);
+
+    // can take address of any variable
+    int **pp;
+    pp = &p;    // take address of a pointer variable
+    printf("pp %p %p %d\n", pp, *pp, **pp);
+
+    int (*f)(int, char **);
+    f = &main;  // take address of a function<
+    printf("main: %p\n", f);
+
+    return 0;
+    }
+    ```
+
+## C arrays
+
+- contiguous memory holding same data type (char, int, etc.)
+      no bound checking, no growing
+
+- two ways to access arrays:
+      through index: `buf[0]`, `buf[1]`
+      through pointer:` *buf`, `*(buf+1)`
+
+  ```c
+  #include "kernel/types.h"
+  #include "user/user.h"
+  
+  int a[3] = {1, 2, 3};    // an array of 3 int's
+  char b[3] = {'a', 'b', 'c'};  // an array of 3 char's
+  	
+  int
+  main(int ac, char **av)
+  {
+  
+    // first element is at index 0
+    printf("%d\n", a[0]);
+    
+    a[1] += 1;  // use index access
+    *(a+2) = 5; // pointer access
+    
+    printf("%d %d\n", a[1], a[2]);
+  
+    // pointers to array elements
+    printf("a %p a1 %p a2 %p a2 %p\n", a, a+1, a+2, &a[2]);
+  
+    // pointer arithmetic uses type
+    printf("%p %p\n", b, b+1);
+    
+    return 0;
+  }
+  ```
+
+## C strings
+
+- arrays of characters, ending in 0
+  ```c
+  #include "kernel/types.h"
+  #include "user/user.h"
+  
+  char *s = "123";
+  	
+  int
+  main(int ac, char **av)
+  {
+    char s1[4] = {'1', '2', '3', '\0'}; 
+  
+    // s and s1 are strings
+    printf("s %s s1 %s\n", s, s1);
+  
+    // can use index or pointer access
+    printf("%c %c\n", s[0], *s);
+    printf("%c %c\n", s[2], *(s+2));
+  
+    // read beyond str end; DON'T DO THIS
+    printf("%x %p %p\n", s1[4], s1, &s1[4]);
+  
+    // write beyond str end; DON'T DO THIS
+    s1[4] = 'D';
+    
+    return 0;
+  }
+  ```
+
+- ulib.c has several functions for strings
+
+    `strlen()` --- use array access
+
+    `strcmp()` --- use pointer access
+
+- ls.c
+
+  - argv: array of strings
+    - each entry has the address of a string
+    - xv6's exec puts them on the stack as arguments to main
+  - print out argv
+          [draw diagram; see fig 3.4 in book]
+  - T_DIR code fragment
+      `mkdir d`
+      `echo hi > d/f`
+      `ls d`
+
+## C lists (more pointers)
+
+- single-linked list
+  - kernel/kalloc.c implements a memory allocator
+  - keeps a list of free "pages" of memory
+          a page is 4096 bytes
+          free prepends
+          kalloc grabs from front of list
+- double-linked list
+  - kernel/bio.c implements an LRU buffer cache
+  - `brelse() `needs to move a buf to the front of the list
+  - see buf.h
+          two pointers: prev and next
+
+## bitwise operators
+- `char/int/longs/pointers` have bits (8, 32, 64 respectively, on RISC-V).
+    you can manipulate them with `|`,` &`,` ~`,` ^`
+
+```c
+10001 & 10000 = 10000
+10001 | 10000 = 10001
+10001 ^ 10000 = 00001
+~1000 = 0111
+```
+
+- example:
+
+  ​    user/usertests.c
+  ​    kernel/fcntl.h
+  ​    kernel/sysfile.c
+    more interesting examples later
+
+## keywords:
+- static: to make a variable's visibility limited to the file it is declared
+      but global within the file
+- void: "no type", "no value", "no parameters"
+
+## common C bugs
+-   use after free
+-   double free
+-   uninitialized memory
+-   memory on stack or returned by malloc are not zero
+-   buffer overflow
+-    write beyond end of array
+-   memory leak
+-   type confusion
+-   wrong type cast
+
+References:
+https://blog.regehr.org/archives/1393
