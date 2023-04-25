@@ -575,19 +575,32 @@ You'll use these system calls in the first lab, due next week.
 - explore `a.out` of `_cat`
   
    ` riscv64-linux-gnu-objdump -S user/_cat`
-      same as user/cat.asm
+
+    same as user/cat.asm
+
   - 0x0: cat
-        what if we run two cat programs at the same time?
-        see pgtbl lecture
+  
+    what if we run two cat programs at the same time?
+
+    see pgtbl lecture
+
   - 0x8e: _main
-        user.ld:
-          entry: _main
+  
+    user.ld:
+        entry: _main
+
   - what is _main?
-        defined in ulib.c, which calls `main()` and `exit(0)`
+  
+    defined in ulib.c, which calls `main()` and `exit(0)`
+    
   - where is data memory? (e.g., buf)
-        in data/bss segment
-        must be setup by kernel
+  
+    in data/bss segment
+
+    must be setup by kernel
+
   - but we know address where buf should be
+  
        ` riscv64-linux-gnu-nm -n user/_cat`
 
 ## C pointers
@@ -765,12 +778,12 @@ You'll use these system calls in the first lab, due next week.
 - `char/int/longs/pointers` have bits (8, 32, 64 respectively, on RISC-V).
     you can manipulate them with `|`,` &`,` ~`,` ^`
 
-```c
-10001 & 10000 = 10000
-10001 | 10000 = 10001
-10001 ^ 10000 = 00001
-~1000 = 0111
-```
+    ```c
+    10001 & 10000 = 10000
+    10001 | 10000 = 10001
+    10001 ^ 10000 = 00001
+    ~1000 = 0111
+    ```
 
 - example:
 
