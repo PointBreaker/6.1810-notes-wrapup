@@ -756,8 +756,11 @@ You'll use these system calls in the first lab, due next week.
   - print out argv
           [draw diagram; see fig 3.4 in book]
   - T_DIR code fragment
+  
       `mkdir d`
+
       `echo hi > d/f`
+      
       `ls d`
 
 ## C lists (more pointers)
