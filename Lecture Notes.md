@@ -189,7 +189,7 @@ main()
       i.e. FD 1 usually means different things to different processes
   - these examples ignore errors ** don't be this sloppy!
 
-  <img src="https://picgo-1252947055.cos.ap-guangzhou.myqcloud.com/image-20230426010023069.png" alt="Fig1.2" style="zoom:50%;" />
+  <img src="https://picgo-1252947055.cos.ap-guangzhou.myqcloud.com/image-20230426010023069.png" alt="Fig1.2"  />
 
   - Figure 1.2 in the xv6 book lists system call arguments/return or look at UNIX man pages, e.g. "man 2 open"
 
@@ -1002,25 +1002,25 @@ https://blog.regehr.org/archives/1393
   - Qemu starts xv6 in kernel/entry.S (see kernel/kernel.ld)
     ```text
         set breakpoint at _entry
-        look at instruction
-        info reg
+          look at instruction
+          info reg
         set breakpoint at main
-        Walk through main
+          Walk through main
         single step into userinit
-        Walk through userinit
-        show kalloc
-        show proc.h
-        show allocproc()
-        show initcode.S/initcode.asm
+          Walk through userinit
+          show kalloc
+          show proc.h
+          show allocproc()
+          show initcode.S/initcode.asm
         break forkret()
-        walk to userret
+          walk to userret
         break syscall
-        print num
-        syscalls[num]
-        exec "/init"
+          print num
+          syscalls[num]
+          exec "/init"
         points to be made:
-        page table in userinit
-        ecall: U -> K
-        a7: syscall #
-        exec: defensive
+          page table in userinit
+          ecall: U -> K
+          a7: syscall #
+          exec: defensive
     ```
