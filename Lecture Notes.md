@@ -370,12 +370,12 @@ main()
       close(1);
       open("out", O_WRONLY | O_CREATE | O_TRUNC);
   
-      char -argv[] = { "echo", "this", "is", "redirected", "echo", 0 };
+      char *argv[] = { "echo", "this", "is", "redirected", "echo", 0 };
       exec("echo", argv);
       printf("exec failed!\n");
       exit(1);
     } else {
-      wait((int -) 0);
+      wait((int *) 0);
     }
   
     exit(0);
@@ -1086,6 +1086,7 @@ https://blog.regehr.org/archives/1393
 
 - MMU translation
   - see Figure 3.1 of book
+  - ![Fig 3.1](https://picgo-1252947055.cos.ap-guangzhou.myqcloud.com/image-20230429014612536.png)
   - use index bits of VA to find a page table entry (PTE)
   - construct physical address using PPN from PTE + offset of VA
   
@@ -1116,6 +1117,7 @@ https://blog.regehr.org/archives/1393
 
 - RISC-V 64 uses a "three-level page table" to save space
   - see figure 3.2 from book
+  - ![Fig 3.2](https://picgo-1252947055.cos.ap-guangzhou.myqcloud.com/image-20230429014631423.png)
   - page directory page (PD)
     - PD has 512 PTEs
     - PTEs point to another PD or is a leaf
@@ -1123,7 +1125,7 @@ https://blog.regehr.org/archives/1393
   - PD entries can be invalid
     - those PTE pages need not exist
     - so a page table for a small address space can be small
-
+  
 - how does the mmu know where the page table is located in RAM?
   - satp holds phys address of top PD
   - pages can be anywhere in RAM -- need not be contiguous
