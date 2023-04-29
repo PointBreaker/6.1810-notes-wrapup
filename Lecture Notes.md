@@ -1105,9 +1105,9 @@ https://blog.regehr.org/archives/1393
 
 - would it be reasonable for page table to just be an array of PTEs?
   - how big is it?
-  - 2^27 is roughly 134 million
+  - $2^{27}$ is roughly 134 million
   - 64 bits per entry
-  - 134*8 MB for a full page table
+  - $134\times8$ MB for a full page table
     - wasting roughly 1GB per page table
     - one page table per address space
     - one address space per application
@@ -1121,7 +1121,7 @@ https://blog.regehr.org/archives/1393
   - page directory page (PD)
     - PD has 512 PTEs
     - PTEs point to another PD or is a leaf
-    - so 512*512*512 PTEs in total
+    - so $512\times512\times512$ PTEs in total
   - PD entries can be invalid
     - those PTE pages need not exist
     - so a page table for a small address space can be small
