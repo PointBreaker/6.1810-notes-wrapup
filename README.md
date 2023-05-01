@@ -12,7 +12,12 @@ Read... You can use `git clone` to download the whole repository, or just click 
 
 ### My lab solution
 
-> for reference only, my implementation is not perfect
+> for reference only, my implementation is not perfect,
 > welcome to discuss with me (do not pull request)
 
 [xv6 labs](https://github.com/PointBreaker/xv6-labs-2022)
+
+finished labs:
+- lab util
+- lab syscall
+- lab pgtbl
