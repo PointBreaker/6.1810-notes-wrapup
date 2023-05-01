@@ -8,4 +8,11 @@ I want to make it easier to read and understand, so I wrap them up in markdown f
 
 ### Usage
 
-Read...
+Read... You can use `git clone` to download the whole repository, or just click the file you want to read, pull request if you find any mistakes.
+
+### My lab solution
+
+> for reference only, my implementation is not perfect
+> welcome to discuss with me (do not pull request)
+
+[xv6 labs](https://github.com/PointBreaker/xv6-labs-2022)
