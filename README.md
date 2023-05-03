@@ -21,3 +21,4 @@ finished labs:
 - lab util
 - lab syscall
 - lab pgtbl
+- lab traps
