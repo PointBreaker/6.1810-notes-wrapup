@@ -2004,7 +2004,7 @@ and load it into satp, and issue an sfence to clear the TLB.
   - 2) The type of violation that caused the fault
     - See scause register value (instruction, load, and Store page fault)
   - 3) The instruction and mode where the fault occurred
-    - User IP: tf->epc
+    - User IP: trapframe->epc
     - U/K mode: implicit in usertrap/kerneltrap
   
 - lazy/on-demand page allocation
@@ -2103,7 +2103,6 @@ and load it into satp, and issue an sfence to clear the TLB.
   - replicate pages that are only read
   - invalidate copies on write
 
-  
 - TLB management
   - CPUs caches paging translation for speed
   - xv6 flushes entire TLB during user/kernel transitions
