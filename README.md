@@ -22,3 +22,4 @@ finished labs:
 - lab syscall
 - lab pgtbl
 - lab traps
+- lab lazy
